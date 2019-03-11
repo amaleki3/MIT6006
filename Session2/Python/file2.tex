@@ -1,0 +1,543 @@
+\documentclass[review]{elsarticle}
+
+\usepackage{latexsym}
+\usepackage{epsfig}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{natbib}
+\usepackage{rotating}
+\usepackage{color}
+\usepackage{multirow}
+\usepackage{floatrow}
+\usepackage{tabularx}
+\usepackage{adjustbox}
+
+\newcommand{\fracp}[2]{\frac{\partial #1}{\partial #2}} % partial differentiation
+
+\newlength{\Oldarrayrulewidth}
+\newcommand{\tline}[1]{%
+  \noalign{\global\setlength{\Oldarrayrulewidth}{\arrayrulewidth}}%
+  \noalign{\global\setlength{\arrayrulewidth}{1pt}}\cline{#1}%
+  \noalign{\global\setlength{\arrayrulewidth}{\Oldarrayrulewidth}}}
+
+\DeclareFloatFont{tiny}{\tiny}% "scriptsize" is defined by floatrow, "tiny" not
+\floatsetup[table]{font=tiny,capposition=top}
+
+\newcolumntype{?}{!{\vrule width 1pt}}
+
+
+\def\dd{{\rm d}} % roman d for use in derivative and integral
+\newcommand{\rd}[1]{\textcolor{red}{#1}}
+
+
+\journal{Journal of Petroleum Science \& Engineering}
+
+\begin{document}
+%\tableofcontents
+%\listoffigures
+
+\begin{frontmatter}
+\title{Comparing Laminar and Turbulent Primary Cementing Flows}
+
+\author{A.~Maleki}
+\address{Department of Mechanical Engineering, University of British Columbia, 2054-6250 Applied Science Lane, Vancouver, BC, Canada V6T 1Z4.}
+
+\author{I.A.~Frigaard}
+\address{Departments of Mathematics and Mechanical Engineering, University of British Columbia, 1984 Mathematics Road, Vancouver, BC, Canada, V6T 1Z2.\\ Tel: 1-604-822-3043; e-mail: frigaard@math.ubc.ca}
+
+\begin{abstract}
+There is a long standing perception in the cementing community that turbulent regime displacements should be used in primary cementing whenever possible. In this paper, we question this preference and provide evidence that such statements often lead to erroneous conclusions. We show that there is no clear indication that turbulent displacement always outperforms laminar displacement. Indeed, we will show examples where a lower Reynolds number laminar flow outperforms its turbulent counterparts. Our study emphasises that comparisons must always be made within the context of operational constraints, which usually means a bound on frictional pressure regardless of flow regime. Instead of flow regime being the most critical factor, our analysis identifies eccentricity of the annulus as the single most important parameter that significantly influences the displacement outcome. The second contributing factor, in a vertical casing, is the density difference of successive fluids pumped in the annulus.
+\end{abstract}
+
+\medskip
+\begin{keyword}
+Well integrity; Cementing; fluid-fluid displacement; Simulation; flow regime;
+\end{keyword}
+\end{frontmatter}
+
+
+\section{Introduction}
+\label{sec:intro}
+
+All oil and gas wells undergo primary cementing at least once in their lifetime. This operation has been carried out in various formats for nearly a century and there has been a growing technical literature for at least 50 years. The 3 main reasons for primary cementing are: (i) to provide mechanical support to the well; (ii) to zonally isolate different fluid-bearing strata; (iii) to protect the casing from corrosive reservoir fluids. Well integrity can be compromised in a variety of ways, either during or after cementing \citep{Bonett1996} which can lead to both severe economic \citep{smith1984,Watson2004} and environmental consequences \citep{chafin1994,Armstrong2002,Karion2013}.
+
+Since relatively few cement jobs are logged directly afterwards, there is considerable uncertainty about the effectiveness of primary cementing. One measure comes from studies of well leakage, e.g.~\cite{Dusseault2014,davies2014}, which
+suggest that $10-20$\% of wells leak to varying degrees of severity. Such metrics include a variety of defects and causes. In this paper we consider only defects that may arise during the process of cement placement/mud removal, i.e.~fluid mechanical in origin. Many different fluids are used in cementing and there are different techniques advocated by different operators and service companies. Here we address what might appear to be a simple question: is it better to cement a vertical well in laminar or turbulent regime?
+
+%There is certainly a perception in the cementing community that turbulent regime displacements should be used where possible. This appears quite early in the literature \citep{Mclean1967,Sauer1987,kettl1993}, is advocated in influential texts \citep{Nelson1990,nelson06,Lavrov2016} and even stated as fact in recent studies \citep{enayatpour2017}. However, the scientific evidence to support this preference is scant. Two papers by \cite{howard1948} and \cite{smith1991} are often cited, in which the authors have only concluded that their displacement experiments with higher mean velocity registered better displacement efficiency. The other work that is often cited is \cite{Brice1964}, in which 26 wells were studied where ``turbulent flow techniques were applied in primary cementing''. The quality of the cement jobs was then evaluated with different common metrics, including cement bong log and pressure test, all of which give a bulk assessment of the cement.
+
+The early literature on cementing generally stated that the turbulent displacement is more successful than those in laminar in removing the mud during primary cementing \citep{Sauer1987,nelson1990,kettl1993}. While some recent studies have been less definitive and warned that certain conditions must be satisfied for turbulent displacement to succeed, e.g.~\cite{nelson06,khalilova2013}, there still appears to be a widely accepted perception in the cementing community that turbulent displacement is necessarily superior to laminar displacement. See for example \citet{kelessidis1996} and the very recent \citet{Lavrov2016,enayatpour2017}. However, the scientific evidence to support this perception appears to be scant. Two papers by \citet{howard1948} and \citet{smith1991} are often cited as references, but although these have observed that displacement experiments with higher flow rate led to better displacement efficiency, they did not compare turbulent and laminar regimes. Similarly, two separate studies by \citet{smith1989} and \citet{haut1979} suggest that ``as the annular velocity is increased there is no sharp increase in the displacement efficiency at the transition from laminar to turbulent flow'' and ``high flow rates, whether or not the cement is in turbulent, provide better displacement than plug flow rates''. The other work that is often cited to support turbulent displacement is \citet{Brice1964}, in which 26 wells were studied where ``turbulent flow techniques were applied in primary cementing''. The quality of the cement jobs were then evaluated with different metrics, including cement bond log and pressure test, all of which give an imprecise assessment of the cement, and are rather insensitive to small features such as micro-annuli.
+
+While there is little doubt that \cite{howard1948,Brice1964} and \cite{smith1991} demonstrate that turbulent regimes can effectively displace annuli, potentially leading to effective cementing, the same can be said for numerous studies in which wells are cemented in laminar regime. The point is that there is not, to our knowledge, any objective study that compares cementing displacement flows in both laminar and turbulent regimes, within operational constraints. In this paper we consider this comparison directly.
+
+Laminar primary cementing displacement flows are commonplace and have been studied more extensively than turbulent flows. From early on the possibility of a narrow side mud channel was identified \citep{Mclean1967} and design rules specified in order to avoid this and other issues, e.g.~\cite{lockyear1989}. Perhaps the most widely acknowledged system is the \emph{Effective Laminar Flow} (ELF) rule system developed by \citet{Couturier1990} and described more explicitly by \citet{brady1992} and \citet{theron2002}. ELF states:	
+\begin{itemize}
+		\item The displacing fluid must be at least 10\% heavier than the displaced fluid:
+		\item The frictional pressure gradient exerted by the displacing fluid should be at least 20\% larger than that of displaced fluid.
+		\item The shear stress on the narrow side of the annulus should exceed the yield stress of the displaced fluid.
+		\item The displacing fluid speed on the wide side must be equal to or smaller than the displaced fluid speed on the narrow side (steady flow condition).	
+\end{itemize}
+The last of these is least well accepted and harder to apply in the hydraulics context. Since the 1990s, the industry has been able to access hydraulics-based 1D simulators, within which systems such as ELF are easily implemented.
+
+A 2D model for annular displacement was introduced by \citet{Bittleston2002}. The key assumption of their model is that the annular gap is narrow compared to the mean circumference. This allows an averaging procedure that reduces the problem to 2D, i.e.~we unwrap the annulus into a channel of eccentrically varying width and study displacements in an azimuthal-axial plane. Such models have been analyzed in depth for both vertical \citep{Pelipenko2004a,Pelipenko2004b,Pelipenko2004c} and horizontal \citep{Carrasco2008} annuli, so that the concept of a steady and fully efficient displacement has become established and can be more explicitly designed. \cite{Pelipenko2004c} reviewed hydraulics rule-based systems such as ELF and compared them with predictions of 2D simulations. They concluded that there is a general agreement between 2D model-based simulations and rule-based systems, although the 1D rule-based systems are often significantly conservative.
+
+2D simulators are now actively used in cementing case studies, where they generally compare favourably with post-placement logging of the wells \citep{Osayande2004,Bogaerts2015,Gregatti2015,Guo2015}, and hence can be used to avoid operational defects. These models continue to evolve. For example, \cite{Carrasco2010} and \cite{Tardy2015} have included casing motion. \citet{Tardy2018} has improved the narrow gap approximation to allow for a better approximation of curvature and other effects. Foamed cementing is considered by \citet{Hanachi2018}. Irregular wellbores have been studied using these models by \citet{Renteria2018}. In addition to field case studies, over the years a number of laboratory-scale displacement studies have been conducted that allow direct measurement and visualization of the displacement flow, e.g.~\cite{tehrani1993,malekmohammadi2010}. These are generally in qualitative agreement with the 2D model results, at least for predicting displacement flows that are steady and stable. However, the experiments also expose 3D effects, such as residual wall layers, inertial instabilities, etc. Such features can also be observed in 3D computational studies \citep{enayatpour2017,skadsem2018}.
+
+More recently, in \citet{Maleki2017} we have extended the 2D gap-averaged approach to the modelling of turbulent and transitional flows. In the narrow annulus approximation it is interesting to note that the main difference with turbulent flows comes in mass transport and not in the momentum balance, which remains a shear flow (albeit turbulent) in the direction of the modified pressure gradient. The mass transport is modified by both turbulent diffusivity and more dominant Taylor dispersion effects, which are anisotropic; see \cite{Maleki2017}. With this model we have recently studied the effects of using lightweight spacers \citep{Maleki2018a} and the competition between buoyancy and turbulence in vertical cementing \citep{Maleki2018b}. The model developed in \citet{Maleki2017} is ideal for the type of comparison that we make later in the paper.
+
+The outline of the paper is as follows: In \S \ref{sec:cementingtestcases} we briefly survey the available data in the literature, and particularly point out that parameters of critical importance in primary cementing, such as well eccentricity or fluid rheology, are often left behind unrecorded/unreported. Having surveyed the parameters typical of primary cementing jobs, we discuss several displacement examples in \S \ref{sec:results}. Keeping the maximum frictional pressure gradient constant by controlling the flow rate, here our goal is to design an optimum spacers that can successfully displace drilling muds. In particular, we investigate whether flow regime influences the outcome of primary cementing. We also consider cases where spacers are to be removed. In addition, we define more effective and telling measures for evaluating the displacement outcome. We will finally close the paper by outlining the concluding remarks in \S \ref{sec:conclusion}.
+
+\section{Cementing test cases}
+\label{sec:cementingtestcases}
+Here we consider the problem of defining a reasonable comparative test case for cementing of a vertical casing. Primary cementing presents some difficulties in terms of defining typical data, which it is worth remarking on. As with many industrial processes, effective data recording and analysis is a precursor to process improvement. Whereas in drilling for example, directional drilling and managed pressure drilling have placed the emphasis on real time data acquisition and control over the past 2 decades, the same advances have not occurred in cementing. To the contrary, parameters of importance to the effectiveness of primary cementing are not evaluated or recorded in any easily accessible format.
+
+\subsection{Eccentricty/stand-off}
+
+It is widely agreed upon that annular eccentricity is one of the most critical parameters affecting displacement flows during primary cementing \citep{nelson06}, i.e.~high eccentricity/poor stand-off can dominate all other effects and result in a poor cement job. Despite this, there is little consistency in centralization of the annulus. Some of the reasons follow.
+
+First, a range of centralizers exist and there is no standard geometry/mechanical design. Centralizers spacing varies quite substantially, typically from as close as 9 m apart to as far as 40 m apart, depending on the operator's design choices.
+In addition, operational realities often override design choices, e.g.~in long cemented sections the risk of the casing getting stuck as it is lowered into the well is significant and centralizers represent mechanical obstructions.
+
+Second, the effectiveness of centralization is not regularly evaluated in any reliable way. It can be inferred from logging measurements taken after the cement job \citep{Guillot2008}, but there are few other means of evaluation. Although it might be argued that it is ``too late'' to correct once cementing has taken place, the stress distribution inside the cement sheath depends on the eccentricity of the annulus. This means a more eccentric annulus is more vulnerable to thermal or hydraulic stresses, and as a result more likely to develop cracks that compromise well integrity.
+
+Thirdly, the management structure of the industry does not favour a stronger emphasis on the quality of well integrity during cementing. Consequences of poor cementing are felt later in the life of a well, either by compromised productivity requiring remedial treatment or by leakage that delays the final decommissioning and defers costs until later in the wells lifetime, i.e.~production or decommissioning segments of the operators bear the eventual cost.
+
+With the poor evaluation and other factors above, design methodologies become especially important.
+The maximum API standard recommendation for eccentricity is 33\% \citep{bottiglieri2014}, and the API suggest only simple methods for calculating stand-off. Many service companies and operators use proprietary computational models for their designs. There is a range of such models available; see \cite{juvkam1992,blanco2000,Guillot2008}. There are few comparisons between models and/or between models and measured positioning. Certainly, in complex wells such comparisons can reveal significant differences; see \citep{Gorokhova2014}. Even in vertical sections of a wellbore the annulus is generally not fully concentric. The top of the casing is generally in tension and the bottom in compression, or is connected to a lower part of the well where the trajectory changes and the casing bends inducing other stresses and deformations. For example, in \citet{Guillot2008} measured eccentricities of 20-60\% are found in the vertical sections of the 2 case studies considered. For the purpose of our study, the main point is that typical eccentricities in centralised vertical wells are probably in range of 30\% and may be significantly higher, either locally or in cases of poor  design.
+
+\subsection{Fluid rheology}
+
+The second area of difficulty in primary cementing concerns fluid rheology. Although unimportant in fully turbulent flows \citep{Maleki2018b}, many cementing jobs are designed to be laminar, e.g. following ELF, and many others have mixed flow regimes due to pumping limitations, varying fluid viscosities between fluids or large eccentricity. For laminar regimes, fluid rheology is critical and indeed appears explicitly in design criteria such as ELF. It is therefore paradoxical why rheology is not better monitored and data collected. Some of the inherent difficulties here are as follows.
+
+First, only the drilling fluid rheology is routinely monitored at rigsite. However, data is not always recorded before/after mud conditioning so that the in-situ fluid is not well characterised. Even when measured, industry standard techniques are not ideal as is widely acknowledged. Using e.g.~6 or 12 FANN viscometer readings is limited as a method for parameter fitting, there are many in-house variations in fitting method and there are systematic errors in over-predicting the yield stress (as one example).
+
+Secondly, spacers and other pre-flushes may have rheological design targets but these are specified in a field lab setting. Rigsite water supplies, contamination and mixing protocols may all affect rheology significantly; density less so. Although there may be proprietary reasons for not revealing spacer composition, mandatory rigsite measurement and monitoring of rheology would be a sensible advance. Similarly, cement slurries are designed to have a specific density (and usually this is well controlled), but often contain additives that change the liquid phase rheology, e.g.~for countering gas migration.
+
+As an illustration of the paucity of rheological data, Table \ref{table:range} collects together a range of data, reported in the technical literature. As well as the large number of blank spaces, where rheology is concerned, we see that the eccentricity is rarely known/reported. It is also interesting to note that the fluid volumes are given more frequently than the flow rates (while the latter is of greater importance in understanding the displacement). This is simply illustrative of the difficulties of studying and improving cementing practices.
+
+\floatsetup[table]{font=tiny,capposition=top}
+\begin{table}
+        \centering
+        \caption{Range of density and rheological parameters as well as pumping rates for the mud, preflush and cement slurry. Red readings are in SI.}
+        \label{table:range}
+        \renewcommand{\arraystretch}{1.2}
+        \begin{adjustbox}{angle=90}
+        \begin{tabular}{?p{1cm}
+        				?@{}p{0.6cm}|@{}p{0.6cm}|@{}p{0.5cm}|@{}p{0.7cm} % geometry
+        				?@{}p{1.5cm}@{}|p{0.7cm}|@{}p{1.5cm}				 % mud
+        				?@{}p{1.5cm}|@{}p{0.7cm}|@{}p{1.5cm}|@{}p{1.5cm} % spacer
+        				?@{}p{1.5cm}|@{}p{0.7cm}|@{}p{1.5cm}|@{}p{1.5cm}?} % cement
+        				
+            \tline{1-16}
+
+            \multirow{2}{*}{\begin{turn}{90}\textbf{Ref}\end{turn}} &
+                           \multicolumn{4}{|@{}p{2.4cm}|}{\textbf{\normalsize ~~~Geometry}} &
+                           \multicolumn{3}{|@{}p{2.15cm}|}{\textbf{\normalsize ~~~~~~Mud}}&
+                           \multicolumn{4}{|@{}p{3.5cm}|}{\textbf{\normalsize ~~~~~~~~~~Preflush}}&
+                           \multicolumn{4}{|@{}p{3.5cm}|}{\textbf{\normalsize ~~~~~~~~~~Cement}}\\
+
+            \tline{2-16}
+
+             & $\mathbf{ D_{i}}$ \hspace{-0.2cm} (in)
+             & $\mathbf{ D_{o}}$ (in)
+             & $\mathbf{\beta}$ ($^\circ$)
+             & $\mathbf e$ (\%)
+             & $\mathbf{\rho}$ (ppg) \rd{(kg/m$^3$)}
+             & $\mathbf{\kappa}$ (cP)
+             & $\mathbf{\tau_Y}$ (lb/ft$^2$) \rd{(Pa)}
+             & $\mathbf{\rho}$ (ppg) \rd{(kg/m$^3$)}
+             & $\mathbf{\kappa}$ (cP)
+             & $\mathbf{\tau_Y}$ (lb/ft$^2$) \rd{(Pa)}
+             & $\mathbf{ Q}$ (bbl/min) \rd{$\mathbf{{\bar{W}}_0}$ (m/s)}
+             & $\mathbf{\rho}$ (ppg) \rd{(kg/m$^3$)}
+             & $\mathbf{\kappa}$ (cP)
+             & $\mathbf{\tau_Y}$ (lb/ft$^2$) \rd{(Pa)}
+             & $\mathbf{ Q}$ (bbl/min) \rd{$\mathbf{{\bar{W}}_0}$ (m/s)}
+             \\
+            \tline{1-16}
+
+            \cite{anugrah2014} & 9.625 & 12.25 & ~~0 &  & 9.2, \rd{1100} & 55.5 & 46.5, \rd{22.2} & 10.2, \rd{1222} & & & & 10.5, \rd{1258} & 54 & 39, \rd{18.6} & \\
+            \cline{1-16}
+
+            \cite{anugrah2014} & 10.75 & 12.25 & ~~0 &  & 9.2, \rd{1100} & 55.5 & 46.5, \rd{22.2} & 10.2, \rd{1222} & & & & 13.5, \rd{1617} & 186 & 41, \rd{19.6} & \\
+            \cline{1-16}
+
+            \cite{metcalf2011} & ~~5.5 & 8.75 & ~~0 &  & 10-10.5, \rd{1198-1258} &  &  &  &  &  &  &  &  &  & \\
+            \cline{1-16}
+
+            \cite{metcalf2011} &~~ 7 & 8.75 & ~~0 &  & 10-10.5, \rd{1198-1258} &  &  &  &  &  &  &  &  &  & \\
+            \cline{1-16}
+
+            \cite{edwards2013} & 10.75 & 13.625 & ~~0 &  & 14.9, \rd{1785} &  &  & 15.8, \rd{1893} & 20-100 & 10-15, \rd{4.8-9.6} & 5, \rd{0.37} & 17.8, \rd{2132} & 70-190 & 3-20, \rd{1.4-9.6} & 5, \rd{0.37} \\
+            \cline{1-16}
+
+            \cite{edwards2013} & 10.75 & 13.625 & ~~0 &  & 14.9, \rd{1785} &  &  & 15.8, \rd{1893} & 20-100 & 10-15, \rd{4.8-9.6} & 5, \rd{0.37} & 17.8, \rd{2132} & 70-190 & 3-20, \rd{1.4-9.6}  & 5, \rd{0.37} \\
+            \cline{1-16}
+
+            \cite{bottiglieri2014} &~ 9.625 & 10.75 & ~90 & 38-45 & 9.1, \rd{1090} &  &  & 8.4, \rd{1010} & 1-2 & 0, \rd{0} & 16.5, \rd{3.7} & 15.9, \rd{1900} & & & 5.1-5.3, \rd{1.14-1.29} \\
+            \cline{1-16}
+
+            \cite{bottiglieri2014} &~ 9.625 & 10.75 & ~90 & 38-45 & 9.1, \rd{1090} &  &  & 8.4, \rd{1200} & 35 & 6.7, \rd{3.2} & 5.3 \rd{1.29} & 15.9, \rd{1900} & & & 5.1-5.3, \rd{1.14-1.29} \\
+            \cline{1-16}
+
+            \cite{bottiglieri2014} &~ 9.625 & 10.75 & ~90 & 38-45 & 9.1, \rd{1090} &  &  & 8.4, \rd{1450} & 70.5 & 10.9, \rd{5.2} & 5.3, \rd{1.29} & 15.9, \rd{1900} & & & 5.1-5.3, \rd{1.14-1.29} \\
+            \cline{1-16}
+
+            \cite{elshahawi2018} & 7 & 9.875 & ~~0  &   & 15, \rd{1800} &  &  &  &   &   & & 19.1, \rd{2300} & & & 4.4, \rd{0.47} \\
+            \cline{1-16}
+
+            \cite{pks2010} & 13.375 & 14.75 &  ~~0 &   & 10, \rd{1198} & 30$^{0.8}$ (n=0.8) & 9.57, \rd{4.6} & 11, \rd{1318} &  35$^{0.7}$ (n=0.7) &  4.79, \rd{2.3} & 2-6, \rd{0.27-0.81} & 12, \rd{1437} & 50$^{0.8}$ (n=0.8) & 2.39, \rd{1.1} & 2-6, \rd{0.27-0.81} \\
+            \cline{1-16}
+
+            \cite{ravi2008} & ~11.87 & ~~16 &  0 &   & 12, \rd{1437} &  &   & 14.2, \rd{1701} &   &   & 10, \rd{0.45} &16.5, \rd{1977} &   &  & 8, \rd{0.36} \\
+            \cline{1-16}
+
+            \cite{green2003} & 7.75 & 9.875 &  60 &   & 8.7, \rd{1042} &  &   &  &   &   & 8.34, \rd{0.58} & 15.3, \rd{1833} & 24-64  & 4.4-7.4, \rd{2.1-3.5}  & 5, \rd{0.29} \\
+            \cline{1-16}
+
+            \cite{green2003} & 5 & 6.5 &  90 &   & 8.7, \rd{1042} &  &   &  &   &   & 8.34, \rd{1.26} & 15.3, \rd{1833} & 24-64  & 4.4-7.4, \rd{2.1-3.5} & 5, \rd{0.43} \\
+            \cline{1-16}
+
+            \cite{brunherotto2017} & 10.75 & 13.62 &  0 &   & 9.9, \rd{1186} & 300 & 12.3, \rd{5.9}  &  &   &   & 3, \rd{0.22} & 16, \rd{1917} &   &   & 8, \rd{0.59} \\
+            \cline{1-16}
+
+            \cite{radojevic2006} & ~~6.6 & 8.875 &  45 &   & noisy &   &   & 12.5, \rd{1500} &   &   & \rd{1.31} & 15, \rd{1800} &   &   & \rd{0.9} \\
+            \cline{1-16}
+
+            \cite{radojevic2006} & ~~10 & 11.62 &  45 &   & 8.3, \rd{1000} &   &   & 12.5, \rd{1500} &   &   & \rd{1.23} & 15, \rd{1800} &   &   & \rd{0.75} \\
+            \cline{1-16}
+
+            \cite{waters1995} & ~~3.5 & 4.5 &  &   &   &   &   &   &   &   & 2.5-3.5, \rd{1.6-2.2} &   &   &   & 7-11, \rd{4.5-7.1}\\
+            \cline{1-16}
+        \end{tabular}
+        \end{adjustbox}
+\end{table}
+
+\subsection{Test cases}
+
+Our focus in this paper is to identify how flow regime can influence efficiency of displacement. In particular we wish to explore the perception that turbulent displacements are better, within an operationally constrained setting.
+
+With regard to difficulties of characterizing eccentricity, we will use two ranges of eccentricity in our simulations: $e = 0.3-0.4$ (mildly eccentric annulus, standoff = 70-60\%) and $e=0.6$ (highly eccentric annulus, standoff = 40\%). In addition to the eccentricity, well geometry (inner and outer radii) varies along the well. Annulus inner diameters can start at anything up to 20" (51 cm) and can end as small as 4" (10 cm) in a production zone. Thus, in this paper we will consider two sizes of casing: a surface casing and a production casing. We consider only vertical wells and in each well we will only study the lowest $150$m of the well, as the displacement characteristics develop fully within such a distance.
+
+With regard to the fluid rheologies, we fix the properties of the mud that is to be displaced:
+\begin{equation}\label{eq:mud_prop}
+ \rho = 1200 \text{ kg/m}^3, n = 1,  \kappa = 0.01 \text{ Pa.s and }  \tau_{Y} =10\text{ Pa.}
+\end{equation}
+The yield stress here is significant, i.e.~this is not a trivial fluid to displace.
+
+For the displacement problem we limit our analysis to displacement of the mud with a spacer and consider varying properties and flow rates. At the end of the paper, we will briefly explore spacer-cement displacement too. However, note that the freedom in design is usually with the spacer. Cement slurries are typically relatively dense and viscous, and are therefore mostly pumped in laminar regime. The question therefore is do we have the ``right'' spacer, relative to the mud.
+
+To complete the definition  of the mud removal problem, we recall that primary cementing is constrained by the formation fracture pressure and the pore pressure (the pore-frac envelope), i.e.~to retain primary well control. This constrains the densities used and also the flow rates. Any well will have its own specific limits. Here we just wish to emphasize that such a constraint exists and explore its effects. Loosely speaking this is a frictional pressure constraint, which in practice is to be satisfied at each position in the open-hole and at each time through the operation. To simplify this, we simply impose that the total frictional pressure drop generated by the displacing fluid, over the length of well, down the inside of the casing and up in the annulus, should be less than $150$ psi ($=1034$ kPa). The value $150$ psi is representative of a typical safety margin, but is otherwise nominal.
+
+The above gives a meaningful method of comparison of different designs. For example, we might attain the same frictional pressure with either a low viscous spacer in turbulent flow, or a highly viscous spacer in laminar flow.
+
+\subsubsection{Simulation details}
+
+All simulations are carried out using the annular displacement model that is fully detailed in \citet{Maleki2017}. As discussed above, we simulate only the lowest $150$m of each well. We use 300 meshpoints in the axial direction and 30 azimuthally. Simulations are started with the spacer just about to enter the annulus. To calculate frictional pressures inside the casing (used to determine the maximal flow rates) we use the hydraulics closures of \citet{Maleki2016}, which includes the closure models for both pipe and annular flows. For the sake of simplicity, the frictional pressure gradient is calculated assuming that the entire pipe and annulus is filled with the spacer fluid and we neglect the casing thickness.
+
+
+\section{Results}
+\label{sec:results}
+
+\subsection{Surface casing results}
+\label{sec:surface}
+
+For the surface casing simulations we consider a vertical annulus with the following dimensions:
+\[
+	  D_{i} = 13" ( r_i = 16.5 \text{ cm}), ~~ D_{o} = 15" ( r_o = 19 \text{ cm}),~~~  \xi_{bh} = 500\text{m}.
+\]
+Seven fluids with different properties are listed in Table \ref{table:fluids_surface_casing} as displacing fluids. These candidates represent a wide range of parameters, covering from a laminar low Reynolds displacement to highly turbulent high Reynolds displacements. For each candidate, the flow rate is maximum flow rate possible without violating the frictional pressure constraint.
+
+\begin{table}[h]
+        \caption{Candidate preflush fluids for displacement in the surface casing.}
+        \label{table:fluids_surface_casing}
+        \begin{adjustbox}{angle=0}
+		\begin{tabular}{|p{0.2cm}|p{0.8cm}|p{0.3cm}|p{0.7cm}|p{1.4	cm}|p{1cm}|p{0.8cm}|p{1.7cm}|p{1.45cm}|p{1.45cm}|p{1.45cm}|}
+			\tline{1-11}
+			\begin{turn}{90}\textbf{case~~}\end{turn} & $ \rho$ (ppg) \rd{(kg/m$^3$)} & $n$ & $ \kappa$ (Pa.s$^{n}$) & $ \tau_{Y}$ (lb/100ft$^2$) \rd{(Pa)} & $ Q$ (bbl/min) \rd{(m$^3$/s)} & $\mu_{eff}$ (Pa.s) & features & turbulent when $e=0.3$? & turbulent when $e=0.4$? & turbulent when $e=0.6$?\\
+			\tline{1-11}
+			A$_1$    &11.3, \rd{1350}     &  1    & 0.04   &0, \rd{0}  & 0.039, \rd{1.38} & 0.04 &  highly viscous, no yield stress & no & transitional & transitional\\
+			\cline{1-11}
+			A$_2$    &11.3, \rd{1350}    &  1    & 0.01   &4.2, \rd{2}  & 0.043, \rd{1.50} & 0.043 &  moderately viscous, small yield stress & partially turbulent & partially turbulent & partially turbulent\\
+			\cline{1-11}
+			A$_3$    &11.3, \rd{1350}    &  0.5  & 0.30   &0, \rd{0}  & 0.049, \rd{1.72} & 0.036 &  shear thinning, no yield stress & partially turbulent & partially turbulent & partially turbulent\\
+			\cline{1-11}
+			A$_p$   &10.0, \rd{1200}     &  1    & 0.04   &0, \rd{0}  & 0.039, \rd{1.38} & 0.04 &  no density difference, highly viscous, no yield stress & transitional & transitional & partially turbulent\\
+			\tline{1-11}
+			B    & 11.3, \rd{1350}     &  1    & 0.001  &0, \rd{0}  & 0.056, \rd{1.99} & 0.001 &  low viscous, no yield stress & fully turbulent & fully turbulent  & fully turbulent\\
+			\tline{1-11}
+			B$_p$    &10.0,  \rd{1200}     &  1    & 0.001  &0, \rd{0}  & 0.060, \rd{2.13} & 0.001 &  no density difference, low viscous, no yield stress & partially turbulent &  highly turbulent &  highly turbulent\\
+			\tline{1-11}
+			C    & 11.3, \rd{1350}     &  1    & 0.04   &10.6, \rd{5}  & 0.016, \rd{0.55} & 0.27 &  highly viscous, high yield stress & no & no & no\\
+			\tline{1-11}
+        \end{tabular}
+        \end{adjustbox}
+\end{table}
+
+Fluids A$_1$, A$_2$ and A$_3$ are all significantly heavier than the mud and they all have an effective viscosity that is similar at the given flow rates. Here the effective viscosity is computed using the mean velocity (${\bar W}$) and mean gap width as a nominal shear rate:
+\begin{equation}\label{eq:nominal_gamma}
+	 {\dot\gamma}^* = \frac{ {\bar W}}{ r_o -  r_i}, ~~~  \mu_{eff} = \frac{ \kappa  {\dot\gamma}^{*n} +  \tau_Y}{ {\dot\gamma}^* }.
+\end{equation}
+
+Figure \ref{fig:LvT_LhA} shows the snapshots of displacement together with the contours of flow regime at three different times, when the annulus is highly eccentric ($e=0.6$). The three panels on the left in each subfigure can be thought of as snapshots of the displacement. Recall that the annulus is unwrapped into a channel with varying width. The wide ($\phi=0$) and narrow ($\phi=1$) sides are marked with \textbf{W} and \textbf{N} on the horizontal axis. Only half of the annulus is shown and time is reported in dimensionless units. The time-scale is given by
+\[ t^* = \frac{2{\bar W}}{\pi(r_i+r_o)}.\]
+The displaced and displacing fluids are colored red and blue, respectively. Streamlines are depicted with white lines.  The three panels on the right in each subfigure display a map of displacement regime. These maps highlight laminar, transitional and turbulent regions in dark gray, light gray and white, respectively. The regions with immobilized (unyielded) mud are highlighted in black.
+
+We observe that the flow regime is transitional for Fluid A$_1$ and partially turbulent for Fluids A$_2$ and A$_3$. In all cases however, the mud remains either in laminar or at most transitional regime, due to its larger yield stress. The change in the flow regime, both axially along the well and azimuthally around well is clearly depicted here. Despite the change in the flow regime from laminar and transitional in the case of Fluid A$_1$ to turbulent in the case of Fluids A$_2$ and A$_3$, the displacement outcome does not appear to have improved significantly.
+
+The displacement scenarios discussed above are all unsteady, meaning that the interface is faster on the wide side and slower on the narrow side. This leads to continuous elongation of the interface and accumulation of mud that is left behind on the narrow side. Ideally, we would like to avoid this. Two different directions may be pursued to improve the displacement efficiency: i) reduce the viscosity of the spacer and enhance turbulence (Fluid B) or ii) increase the yield stress of the spacer and rely on viscoplastic stresses (Fluid C). The displacement snapshots for these two choices are shown in Figure \ref{fig:LvT_LhBnC}. In case of Fluid B (Figure \ref{fig:LvT_LhBnC}a) the turbulent regime expands and is now found all around the annulus within Fluid B. The interface is still progressing unsteadily, however the wide and narrow side velocity difference has shrunk slightly, as can be seen by the large volume of mud that is displaced on the narrow side. The displacement is of course improved, which appears to be due to the turbulent regime. On the other hand, for Fluid C, the displacement has deteriorated, as the mud on the narrow side barely moves. Although this case is marginally better for the turbulent displacement, we note that neither displacement was effective. In particular, the common notion that a turbulent flow will spread around the annulus is not found to be true in the case of high eccentricity. As commented earlier, the key difference between laminar and turbulent flow within a narrow annulus is in mass transfer and specifically in Taylor dispersion. This dispersive effect is anisotropic and in the direction of the streamlines, which are predominantly axial.
+
+\begin{figure}
+	\centering
+	\begin{tabular}{cc}
+		\put(-3,-7){a)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LhA1_cPsi}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LhA1_regime}
+	 	\hspace{0.5cm}
+	 	\put(-3,-7){b)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LhA2_cPsi}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LhA2_regime}\\
+	 	\hspace{3cm}
+	 	\put(-3,-7){c)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LhA3_cPsi}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LhA3_regime}
+	\end{tabular}
+	\caption{Effect of flow regime in the surface casing with $e=0.6$. For each subfigure, left panels show displacement snapshots at three different times, with white lines denoting the streamlines and right panels shows the corresponding flow regime map. In the regime maps, dark gray, light gray and white regions are laminar, transitional and turbulent, respectively and black regions are unyielded fluid. Mud properties are given by (\ref{eq:mud_prop}) and displacing fluid properties are given in Table \ref{table:fluids_surface_casing} : a) spacer A$_1$; b) spacer A$_2$ and c) spacer A$_3$.}
+	\label{fig:LvT_LhA}
+\end{figure}
+
+Before analyzing the displacement efficiency more closely, we also consider two preflushes that are not any heavier than the mud. Fluids A$_p$ and B$_p$ mimic the rheological properties of fluids A$_1$ and B, respectively. The displacement snapshots for these two fluids are plotted in Figure \ref{fig:LvT_Lhp}. Compared to their counterpart examples with density difference, we observe that these two fluids displace the mud very poorly, leaving a large layer of mud unyielded on the narrow side. This may seem intuitive, but bear in mind that one strategy to enhance displacement quality that is often cited in literature \citep{zulqarnain2012} is to use a lightweight preflush that can be pumped in turbulent regime. Figure \ref{fig:LvT_Lhp} disproves this idea entirely. In \cite{Maleki2018a}, we have investigated the use of lightweight preflushes in more depth. Notice that in practice, as we have iso-dense fluids for A$_p$ and B$_p$, the frictional pressure constraint might be relaxed, i.e.~we might be able to pump them at higher flow rates as we have decreased the static pressure component. However, our recent work in \citep{Maleki2018c} suggests that this will not result in an effective displacement as there is no stabilizing force to counter the effects of eccentricity.
+
+\begin{figure}
+	\centering
+	\begin{tabular}{cc}
+		\put(-3,-7){a)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LhB_cPsi}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LhB_regime}
+	 	\put(-3,-7){b)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LhC1_cPsi}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LhC1_regime}	
+	\end{tabular}
+	\caption{As Figure \ref{fig:LvT_LhA} except: a) spacer B; b) spacer C.}
+	\label{fig:LvT_LhBnC}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{tabular}{cc}
+		\put(-3,-7){a)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LhAp_cPsi}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LhAp_regime}
+	 	\put(-3,-7){b)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LhBp_cPsi}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LhBp_regime}
+	\end{tabular}
+	\caption{As Figure \ref{fig:LvT_LhA} except: a) spacer A$_p$; b) spacer B$_p$.}
+	\label{fig:LvT_Lhp}
+\end{figure}
+
+To compare the spacer fluid candidates in Table \ref{table:fluids_surface_casing} more quantitatively, it is customary in the literature to quantify the displacement using a volumetric efficiency $\eta(t)$, which is the percentage of mud that is displaced. Here we compute the efficiency in the bottom 100 meters of the well. Mathematically, this is equivalent here to calculating:
+\begin{equation}\label{eq:efficiency1}
+\eta(t) = \frac{\int_0^{\xi_\eta}\int_0^1 H c(\phi, \xi, t) \dd \phi \dd \xi}{\int_0^{\xi_\eta}\int_0^1 H \dd \phi \dd \xi}= \frac{1}{\xi_\eta} \int_0^{\xi_\eta}\int_0^1 H c(\phi, \xi, t) \dd \phi \dd \xi,
+\end{equation}
+where $H = 1+ e\cos \pi \phi$ is the dimensionless gap width and $c(\phi, \xi, t)$ is the spacer concentration. Recall that $\phi$ is the azimuthal coordinate with $\phi=0$ and $\phi=1$ denoting the wide and narrow sides, respectively. The axial coordinate is denoted by $\xi$, and $\xi_\eta$ is the length over which efficiency is measured. Here we choose $\xi_\eta = 100$ m.
+
+The above definition of efficiency might be somewhat deceptive, in that although quantitative it gives a biased impression of how effective a cement job is. This is because the volume of annulus on the narrow side is smaller than on the wide side. Therefore, when the mud on the wide side is displaced successfully, as is commonly the case, the value of volumetric efficiency grows rapidly. This  happens despite having mud left behind on the narrow side. From the perspective of well leakage, a residual mud channel is a severe problem. As an example, for an annulus with $e=0.6$, the widest quartile of annulus has a volume 3.25 times larger than that of the narrowest quartile. This number grows to 6.15, if the eccentricity is $e=0.8$. This is particular problematic, because in annuli with high eccentricity, the value of volumetric efficiencies can easily reach as high as 80-90\%, even if the displacement is poor on the narrow side. In fact, this is the case for the displacement example shown above. Figure \ref{fig:efficiency_Lh}a plots the volumetric efficiency $\eta$ as a function of (dimensionless) time ($t$) for all the seven preflush candidates in Table \ref{table:fluids_surface_casing}. Although none of displacement examples can be called successful, as is clearly illustrated in Figures \ref{fig:LvT_LhA}-\ref{fig:LvT_Lhp}, the efficiency values are as high as 90\%.
+
+To account for the above bias, we define a more stringent measure of efficiency, which is solely based on the displacement on the narrow side. More specifically, we only look at the displacement in the narrowest quartile of the annulus:
+\begin{equation}\label{eq:efficiencyN1}
+\eta_N(t) = \frac{\int_0^{\xi_\eta}\int_{\frac{3}{4}}^1 H c(\phi, \xi, t) \dd \phi \dd \xi}{\int_0^{\xi_\eta}\int_{\frac{3}{4}}^1 H \dd \phi \dd \xi}= \frac{4\pi}{\xi_\eta\left(\pi - 2\sqrt{2} e\right)} \int_0^{\xi_\eta}\int_{\frac{3}{4}}^1 H c(\phi, \xi, t) \dd \phi \dd \xi
+\end{equation}
+Figure \ref{fig:efficiency_Lh}b plots the narrow side displacement efficiency $\eta_N$ vs time for all the seven preflush candidates in Table \ref{table:fluids_surface_casing} . As expected, the narrow side efficiency reflects a better picture of the displacement quality. We observe roughly two-third of the mud in the narrowest quartile of the annulus is left behind. The highest efficiency is for Fluid B, and then Fluids C and A$_2$, all at around 30-35\%. This is interesting, because the laminar displacement (Fluid C) performed almost equally good as the partially turbulent displacements (Fluids A$_1$ and A$_2$), and fully turbulent displacement (Fluid B). More critically, the Fluids A$_p$ and B$_p$ which are both flowing in fully turbulent regime did not move the mud on the narrow side at all, and their efficiency is zero.
+
+\begin{figure}
+	\centering
+	\begin{tabular}{cc}
+		\put(-3,-7){a)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.275\textheight]{Figs/eff_Lh}
+		\put(-3,-7){b)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.275\textheight]{Figs/eff_N_Lh}
+	\end{tabular}
+	\caption{Displacement efficiency as a function of time for the surface casing with $e=0.6$. Mud properties are given by (\ref{eq:mud_prop}) and preflush properties are given in Table \ref{table:fluids_surface_casing}. The green line indicates the (dimensionless) arrival time, based on the mean velocity. a) volumetric efficiency $\eta$; b) narrow side efficiency $\eta_N$. }
+	\label{fig:efficiency_Lh}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{tabular}{cc}
+		\put(-3,-7){a)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LmA1_cPsi}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LmA1_regime}
+	 	\put(-3,-7){b)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LmA2_cPsi}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LmA2_regime}\\
+	 	\put(-3,-7){c)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LmA3_cPsi}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LmA3_regime}
+	 	\put(-3,-7){d)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LmB_cPsi}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LmB_regime}\\
+	 	\hspace{3cm}
+	 	\put(-3,-7){e)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LmC_cPsi}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.3\textheight]{Figs/LmC_regime}
+	\end{tabular}
+	\caption{Same as Figure \ref{fig:LvT_LhA}, except $e=0.4$ and a) case A$_1$; b) case A$_2$; c) case A$_3$; d) case B and e) case C.}
+	\label{fig:LvT_Lm}
+\end{figure}
+
+
+
+\begin{figure}
+	\centering
+	\begin{tabular}{cc}
+		\put(-3,-7){a)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.275\textheight]{Figs/eff_N_Lm}
+	 	\put(-3,-7){b)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.275\textheight]{Figs/eff_N_Ll}
+	\end{tabular}
+	\caption{Narrow side displacement efficiency ($\eta_N$) vs time ($t$) for the surface casing. Mud properties are given by \ref{eq:mud_prop} and spacer properties are given in Table \ref{table:fluids_production_casing}.  The green lines indicate the (dimensionless) arrival time, based on the mean velocity. a) $e=0.4$ and b) $e=0.3$.}
+	\label{fig:efficiency_Lm_Ll}
+\end{figure}
+
+Upon closer inspection, it appears that the single parameter that has made the displacement examples above unsuccessful is the eccentricity of the annulus. To elucidate the critical role of eccentricity, we have repeated the above simulations for a slightly less eccentric annulus ($e=0.4$). Figure \ref{fig:LvT_Lm} shows the snapshots of displacement examples for five fluid candidates in Table \ref{table:fluids_surface_casing}, when $e=0.4$. The Fluids A$_p$ and B$_p$ are not shown here, as their displacement performance remains poor. Because the annulus is less eccentric, the velocity profiles are slightly more uniform, but still similar flow regimes are found for the different fluid candidates. For example, the flow regime varies from fully turbulent for Fluid B to partially turbulent for Fluid A$_2$ to transitional for Fluid A$_1$, and finally to fully laminar for the Fluid C.
+
+Although the displacement regimes remain relatively unchanged, the displacement efficiency is improved significantly, as shown in Figure \ref{fig:efficiency_Lm_Ll}a. Here four candidate fluids have reached a narrow side efficiency of 90\% or higher. Fluids A$_2$ and B efficiency reaches 99\%. Fluid C also did almost as well. Although the performance of fluids A$_2$ and B could be attributed to the turbulent regime (on the wide side), another factor is the higher flow rate of the drilling mud, which is a result of our simplistic frictional pressure constraint. Fluid A$_3$ did not perform as well as A$_2$, although also partially turbulent and at a higher flow rate.
+In Figure \ref{fig:efficiency_Lm_Ll}b, we further decrease the eccentricity to $e=0.3$ and now Fluids A$_1$, A$_2$, B and C reach to 0.95\% narrow side efficiency or higher.
+
+
+\subsection{Production casing results}
+\label{sec:production}
+
+For the second part of our analysis, we take a smaller annulus with the following dimensions:
+\[
+	  D_{i} = 4" ( r_i = 5.1 \text{ cm}), ~~ D_{o} = 6" ( r_o = 7.6 \text{ cm}),~~~  \xi_{bh} = 1500\text{m}.
+\]
+This represents a vertical production casing cemented to surface. Lower in the well the pore-frac envelope is typically tighter and this is (artificially) managed here by the increase in length while retaining the same total frictional pressure drop limited to 150 psi. The consequence is that smaller flow rates result. As in the previous section, we only simulate the bottom 150 m of the well to study displacement (although the entire flowpath is considered in calculating the maximal flow rates).
+Five fluids with different properties are listed in Table \ref{table:fluids_production_casing} as the displacing fluid. Although the physical parameters vary quite significantly, the flow rates remain relatively small due to the pressure drop limit, and as a result, in most cases only laminar flows are present in the annulus.
+
+\begin{table}[h]
+        \centering
+        \caption{Candidate preflushes for displacement in the production casing.}
+        \label{table:fluids_production_casing}
+
+		\begin{tabular}{|p{0.25cm}|p{1.cm}|p{0.3cm}|p{0.8cm}|p{0.8cm}|p{1.4cm}|p{0.8cm}|p{2.cm}|p{1.1cm}|p{1.1cm}|}
+			\tline{1-10}
+			\begin{turn}{90}\textbf{Spacer}\end{turn} & $ \rho$ (ppg) \rd{(kg/m$^3$)} & $n$ & $ \kappa$ (Pa.s$^{n}$) & $ \tau_{Y}$ (lb/ft$^2$) \rd{(Pa)} & $ Q$ (bbl/min) \rd{(m$^3$/s)} & $\mu_{eff}$ (Pa.s) & Features & turbulent when $e=0.3$? & turbulent when $e=0.6$?\\
+			\tline{1-10}
+			A$_1$    & \rd{1350}     &  1    & 0.04   & \rd{0}  & 0.0039, \rd{0.38} & 0.04 &  highly viscous, no yield stress & no & no\\
+			\cline{1-10}
+			A$_2$    & \rd{1350}    &  1    & 0.01   & \rd{1}  & 0.0063, \rd{0.48} & 0.051 &  moderately viscous, small yield stress & no & no\\
+			\cline{1-10}
+			A$_3$    & \rd{1350}    &  0.5  & 0.25   & \rd{0}  & 0.0057, \rd{0.56} & 0.05 &  shear thinning, no yield stress & no & no\\
+			\cline{1-10}
+			B        & \rd{1350}    &  1    & 0.001  & \rd{0}  & 0.0085, \rd{0.84} & 0.001 &  low viscous, no yield stress & fully turbulent & partially turbulent\\
+			\tline{1-10}
+			B$_p$    & \rd{1200}    &  1    & 0.001  & \rd{0}  & 0.0090, \rd{0.89} & 0.001 &  no density difference, low viscous, no yield stress & --- & ---\\
+			\tline{1-10}
+			C        & \rd{1350}    &  1    & 0.01   & \rd{2.5}  & 0.0005, \rd{0.05} & 1.3 &  highly viscous, high yield stress & no & no \\
+			\tline{1-10}
+        \end{tabular}
+\end{table}
+
+Figure \ref{fig:efficiency_S} shows the narrow side displacement efficiency $\eta_N$ as a function of time for two values of eccentricity $e=0.6$ and $e=0.3$. For the more eccentric annulus, the displacement is again relatively poor on the narrow side for all preflush candidates. Notice that here only Fluid B is in turbulent regime, and the rest are in laminar regime. Nonetheless, even Fluid B does not reach any satisfactory efficiency. More interestingly, the fluid that outperforms the other candidates is Fluid C, which has the largest rheological parameters and smallest Reynolds number. When the eccentricity is reduced to $e=0.3$, the displacement outcome is substantially improved. Here, Fluid B reaches perfect displacement ($\eta_N=1$), and then Fluids A$_1$, A$_2$ and C with narrow side efficiencies of $\approx 95$\%.
+
+ \begin{figure}[h]
+	\centering
+	\begin{tabular}{cc}
+		\put(-3,-7){a)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.275\textheight]{Figs/eff_N_Sh}
+	 	\put(-3,-7){b)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.275\textheight]{Figs/eff_N_Sl}
+	\end{tabular}
+	\caption{Narrow side displacement efficiency ($\eta_N$) vs time ($t$) for the production casing. Mud properties are given by \ref{eq:mud_prop} and spacer properties are given in Table \ref{table:fluids_production_casing}. The green lines indicate the (dimensionless) arrival time, based on the mean velocity. a) $e=0.6$; b) $e=0.3$.  }
+	\label{fig:efficiency_S}
+\end{figure}
+
+Similar to the previous section, it appears that the displacement regime only marginally influences the displacement outcome. In the more difficult wells, with higher eccentricity, the highly viscous spacer in laminar flow displaced the mud better than the turbulent spacer (and all other candidates).
+
+
+\subsection{Removing the preflush}
+\label{sec:preflush}
+
+In the two previous sections, we investigated how to design an ideal preflush based on its ability to remove a given mud from the annulus and achieve a high displacement efficiency. Another aspect of the design is to see how these preflush candidates are removed by the cement slurry. In particular, is there any spacer  removed easier or harder compared to the others? Since spacers are generally chosen to be chemically compatible with the cement slurries, this is perhaps less critical from the perspective of mixing/contamination, but for example a residual channel of spacer fluid will still compromise well integrity.
+We choose a cement slurry with the following properties:
+%
+\begin{equation}\label{eq:cement_prop}
+ \rho = 1550 \text{ kg/m}^3, n = 1,  \kappa = 0.05 \text{ Pa.s and }  \tau_{Y} =5\text{ Pa.}
+\end{equation}
+%
+The cement is highly viscous and has a moderate yield stress. Therefore, we would expect that it flows only in laminar regime. However, the preflush candidates can still flow in laminar or turbulent, depending on the displacement flow rate. For simplicity, we opt to work with same geometry as in \S \ref{sec:surface}. The displaced preflush fluids are those listed in Table \ref{table:fluids_surface_casing}. We keep the flow rate as indicated in Table \ref{table:fluids_surface_casing}. We thus study whether the flow regime of the displaced fluid influences the displacement or not.
+
+\begin{figure}
+	\centering
+	\begin{tabular}{cc}
+		\put(-3,-7){a)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.25\textheight]{Figs/LcementA1_cPsi}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.25\textheight]{Figs/LcementA1_regime}
+	 	\put(-3,-7){b)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.25\textheight]{Figs/LcementA2_cPsi}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.25\textheight]{Figs/LcementA2_regime}\\
+	 	\put(-3,-7){c)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.25\textheight]{Figs/LcementA3_cPsi}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.25\textheight]{Figs/LcementA3_regime}
+	 	\put(-3,-7){d)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.25\textheight]{Figs/LcementB_cPsi}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.25\textheight]{Figs/LcementB_regime}\\
+	 	\hspace{3cm}
+	 	\put(-3,-7){e)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.25\textheight]{Figs/LcementC_cPsi}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.25\textheight]{Figs/LcementC_regime}	
+	\end{tabular}
+	\caption{As Figure \ref{fig:LvT_LhA}, except the displacing fluid properties are given by (\ref{eq:cement_prop}) and the displaced fluid properties are given in Table \ref{table:fluids_surface_casing}: a) case A$_1$; b) case A$_2$; c) case A$_3$; d) case B and e) case C.}
+	\label{fig:LvT_Lcement}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{tabular}{cc}
+		\put(-3,-7){a)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.275\textheight]{Figs/eff_cement}
+		\put(-3,-7){b)}
+	 	\includegraphics[trim=0cm 0cm 0cm 0cm, clip=true, totalheight=0.275\textheight]{Figs/eff_N_cement}
+	\end{tabular}
+	\caption{Displacement efficiency as a function of time for the surface casing with $e=0.6$. Displacing fluid properties are given by \ref{eq:cement_prop} and displaced fluid properties are given in Table \ref{table:fluids_surface_casing}. The green line indicates the (dimensionless) arrival time, based on the mean velocity. a) volumetric efficiency $\eta$; b) narrow side efficiency $\eta_N$.}
+	\label{fig:efficiency_cement}
+\end{figure}
+
+Figure \ref{fig:LvT_Lcement} plots the displacement snapshots together with contours of flow regime for all seven preflush candidates in Table \ref{table:fluids_surface_casing}. Although the annulus is highly  eccentric, the displacement outcome are satisfactory. More precisely, Figure \ref{fig:efficiency_cement} shows the volumetric efficiency ($\eta$) as well as the narrow side efficiency ($\eta_N$). Although $\eta>0.95$ is achieved in all displacement cases, the displacement on the narrow side is poorer, as indicated in Figure \ref{fig:efficiency_cement}b. The best preflush candidates for removal are Fluids A$_3$ and C. Notice that Fluid A$_3$ performed very poorly in terms of mud removal. More interestingly, the fully turbulent candidates, Fluids B and B$_p$ are harder to be removed than the more viscous laminar candidate, Fluid C.
+
+Compared to the two previous sets of example in annuli with $e=0.6$ in \S\ref{sec:surface} and \ref{sec:production}, these displacements have higher scores, both in terms of the overall efficiency and the narrow side efficiency (Figure \ref{fig:efficiency_cement}). This is primarily due to the large density difference between the cement slurry and the preflush. The other contributing factor is the larger rheological parameters of the cement compared to those of the preflushes. These two factors compete more effectively against the effect of eccentricity.
+
+\section{Summary and concluding remarks}
+\label{sec:conclusion}
+
+Here we have studied a variety of preflush-mud displacement flows in 2 vertical annuli, covering the range from fully laminar to fully turbulent, but satisfying a frictional pressure constraint as is common in cementing, either due to pore-frac or pump capacity limitations. The results suggest that the notion that ``\textit{turbulent flow cementing yields improved results and reduces the amount of remedial work required}''\citep{Brice1964} needs re-consideration and considerable refinement.
+\begin{itemize}
+    \item First, far more important than the flow regime is the effect of annulus eccentricity. Our simulations consistently confirmed that in a largely eccentric annulus (e.g. $e \gtrsim 0.6$), displacement of a mud with moderate yield stress and 10\% density difference is generally unsuccessful, regardless of flow displacement regimes. On the other hand, in a mildly eccentric annulus (e.g. $e \lesssim 0.3$) displacement is typically fairly successful with this type of density difference.
+   \item Good centralization is thus highlighted and this is not a new message for the industry. Indeed the API recommendation is in the range where many displacements will be successful, regardless of whether designed under ELF or as fully turbulent. The bigger question in this respect is organizational, via more rigorous implementation of centralization strategies and more consistent evaluation of cementing. There is also a common perception that a vertical section well will be centralized whereas studies such \cite{Guillot2008,Gorokhova2014} suggest that this is not the case.
+    \item The other key parameter in achieving successful displacement is having sufficient density difference between the displacing and displaced fluids. The poor performance of fluids A$_p$ and B$_p$ and the similar narrow side efficiencies for many of the other fluids in the surface casing study suggest that in a vertical well, after annulus eccentricity, a significant positive density difference is the next most important factor. Reducing displacing fluid density to achieve turbulent displacement is not a successful strategy. Displacement of the preflush by the significantly denser cement slurry was reasonably effective even at $e=0.6$.
+    \item Finally, we consider flow regime. There is no clear indication that turbulent displacement always outperforms laminar displacement and we have shown examples where the highly viscous preflush in a lower Reynolds number displacement flow out-performed the fully turbulent, and vice versa. Many mixed regime displacement flows were also studied and found to be of similar effectiveness. Having said this, in viewing the 2D fluid concentration snapshots we do see differences in observed displacement patterns for the different spacer choices.
+\end{itemize}
+
+A pragmatic conclusion, from the perspective of models such as that we have used, is that preflush choices that produce similar frictional pressure gradients will be comparable in terms of effectiveness regardless of regime. There may be other operational constraints or commercial preferences that then bias the choice of preflush, but the evidence that turbulent displacement should \emph{always} be preferred to laminar is rather weak.
+
+What then is the role of rheology? Certainly the drilling mud rheology is important in resisting removal. Here we assumed a $10$Pa yield stress in the mud, which is fairly common but is also significant. To get a feel for yield stress significance, a $25$Pa yield stress hydrogel can support its own weight between 2 parallel plates $5$mm apart. A density difference of $\approx 100$kg/m$^3$ should be ineffective in moving a $10$Pa yield stress in a $2$cm gap. Thus, frictional pressures are needed with buoyancy to help remove typical drilling muds.
+
+The relative rheology of preflush and drilling fluid is also important if one considers the detail of displacement flows across the annular gap. Here buoyancy and viscous stresses combine to remove a yield stress mud from the walls of the annulus. Inadequate wall shear stresses exerted result in static wall layers of drilling mud remaining in the well, as demonstrated for laminar flows \citep{Zare2017,Zare2018}. Such layers remain in the well and can form a porous micro-annuli later in the lifetime of the well.
+
+We feel the value of our study paper is not specifically in the example cases considered, as slightly different parameters might arguably favour slightly different fluid design strategies. We see the contribution as the following: i) First, we hope that this leads to other researchers correctly describing the fluid design problem in terms of operational constraints and then experimenting within those constraints to see which design performs better. Our constrained problem is simplistic in this regard but illustrative. ii) Second, in selecting a measure of success, the volumetric bias in the displacement efficiency needs to be countered. Our narrow side efficiency is offered as one sensible measure that targets the typical problem area. iii) Thirdly, although industrial practice likes simple statements/rules, selecting a turbulent flow regime as being ``better'' does not stand up to serious analysis and this is an area where engineers need to work hard on specific wells with appropriate simulation/design tools, such as these used here, before making a design decision. iv) Lastly, our long-term goal is to advocate for the collection of more relevant data by industry and regulators so that methods for cementing can be improved. Among such data, values of eccentricity and fluid rheology are paramount.
+
+
+\section*{Acknowledgements}
+This research has been carried out at the University of British Columbia. The authors acknowledge the financial support provided by BC OGRIS (project EI-2016-10), and NSERC and Schlumberger through CRD Project 444985-12.
+
+
+\bibliographystyle{plainnat}
+\bibliography{biblio_new}
+
+\end{document}
+
